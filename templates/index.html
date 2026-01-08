@@ -102,9 +102,16 @@
 <!-- SCRIPT -->
 <script>
 async function predict() {
-  const desc = document.getElementById("description").value;
+  const desc = document.getElementById("description").value.trim();
   const inp = document.getElementById("input").value;
   const out = document.getElementById("output").value;
+
+  
+  if (!desc) {
+    alert("Problem Description is required!");
+    document.getElementById("description").focus();
+    return;
+  }
 
   const res = await fetch("/predict", {
     method: "POST",
