@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AutoJudge</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- HERO SECTION -->
+<div class="hero">
+  <div class="pill">🧠 AI-Powered Difficulty Prediction</div>
+
+  <h1 class="title">
+    Auto<span>Judge</span>
+  </h1>
+
+  <p class="subtitle">
+    Predict programming problem difficulty using machine learning.
+    Get instant <span class="blue">classification</span> and
+    <span class="purple">scoring</span> from problem descriptions.
+  </p>
+</div>
+
+<!-- FEATURES -->
+<div class="features">
+  <div class="feature-card">
+    <div class="icon blue">🎯</div>
+    <h3>Classification</h3>
+    <p>Predict Easy, Medium, or Hard difficulty class</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="icon purple">⚡</div>
+    <h3>Relative Score</h3>
+    <p>Get relative difficulty score (0–100)</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="icon green">🧠</div>
+    <h3>Text-Based</h3>
+    <p>Uses TF-IDF and keyword analysis</p>
+  </div>
+</div>
+
+<!-- INPUT CARD -->
+<div class="card">
+  <h2>Predict Problem Difficulty</h2>
+
+<label class="required-label">
+  Problem Description <span class="required">*</span>
+</label>
+<textarea id="description" placeholder="Problem Description"></textarea>
+  <textarea id="input" placeholder="Input Description"></textarea>
+  <textarea id="output" placeholder="Output Description"></textarea>
+
+  <button onclick="predict()">Predict Difficulty</button>
+</div>
+
+<!-- RESULTS SECTION -->
+<div id="results" class="results-section" style="display:none;">
+  <div class="results-header">
+    <span class="check">✔</span>
+    <p>Prediction Complete</p>
+  </div>
+
+  <h2>Analysis Results</h2>
+
+  <div class="results-grid">
+    <!-- Difficulty -->
+    <div class="result-card green" id="difficultyCard">
+      <h4>Difficulty Class</h4>
+      <h1 id="difficultyText">Easy</h1>
+
+      <p class="confidence-label">
+        Confidence <span id="confidenceText">70%</span>
+      </p>
+
+      <div class="bar">
+        <div id="confidenceFill"></div>
+      </div>
+    </div>
+
+    <!-- Score -->
+    <div class="result-card blue">
+      <h4>Difficulty Score</h4>
+      <h1 id="scoreText">72</h1>
+      <p class="scale">Relative Difficulty Score (0–100)</p>
+
+      <div class="bar">
+        <div id="scoreFill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keywords -->
+  <div class="keywords-box">
+    <h4>Detected Keywords</h4>
+    <div id="keywordsList"></div>
+  </div>
+</div>
+
+<!-- SCRIPT -->
+<script>
+async function predict() {
+  const desc = document.getElementById("description").value;
+  const inp = document.getElementById("input").value;
+  const out = document.getElementById("output").value;
+
+  const res = await fetch("/predict", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      description: desc,
+      input: inp,
+      output: out
+    })
+  });
+
+  const data = await res.json();
+
+  // Show results
+  const results = document.getElementById("results");
+  results.style.display = "block";
+  results.scrollIntoView({ behavior: "smooth" });
+
+  // ----- Difficulty + Color -----
+  const diffText = document.getElementById("difficultyText");
+  const diffCard = document.getElementById("difficultyCard");
+
+  diffText.innerText = data.difficulty;
+
+  diffCard.classList.remove("green", "yellow", "red");
+
+  if (data.difficulty.toLowerCase() === "easy") {
+    diffCard.classList.add("green");
+  } else if (data.difficulty.toLowerCase() === "medium") {
+    diffCard.classList.add("yellow");
+  } else {
+    diffCard.classList.add("red");
+  }
+
+  // ----- Confidence -----
+  const conf = Math.round(data.confidence * 100);
+  document.getElementById("confidenceText").innerText = conf + "%";
+  document.getElementById("confidenceFill").style.width = conf + "%";
+
+  // ----- Score (0–100) -----
+  document.getElementById("scoreText").innerText = data.score;
+  document.getElementById("scoreFill").style.width = data.score + "%";
+
+  // ----- Keywords -----
+  const kwDiv = document.getElementById("keywordsList");
+  kwDiv.innerHTML = "";
+  data.keywords.forEach(k => {
+    const span = document.createElement("span");
+    span.innerText = k;
+    kwDiv.appendChild(span);
+  });
+}
+</script>
+
+</body>
+</html>
