@@ -12,7 +12,7 @@ It uses **machine learning (TF-IDF + classification + regression)** to analyze p
 
 ## 🚀 Live Demo
 🔗 **Live Link:**  
-https://autojudge-3vlh.onrender.com
+https://autojudge-3v1h.onrender.com/
 
 > Note: The app is hosted on Render (Free Tier).  
 > It may take ~30–50 seconds to wake up if inactive.
